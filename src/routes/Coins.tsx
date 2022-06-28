@@ -2,6 +2,8 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import loadingGif from "../img/loading.gif";
+import { useQuery } from "react-query";
+import { fetchCoins } from "../api";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -52,7 +54,7 @@ const Img = styled.img`
   margin-right: 10px;
 `;
 
-interface CoinInterface {
+interface Icoins {
   id: string;
   name: string;
   symbol: string;
@@ -62,29 +64,20 @@ interface CoinInterface {
   type: string;
 }
 function Coins() {
-  const [coins, setCoins] = useState<CoinInterface[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    (async () => {
-      const response = await (
-        await fetch("https://api.coinpaprika.com/v1/coins")
-      ).json();
-      setCoins(response.slice(0, 20));
-      setLoading(false);
-    })();
-  }, []);
+  const { isLoading, data } = useQuery<Icoins[]>("coins", fetchCoins);
+
   return (
     <Container>
       <Header>
         <Title>C-Trackers</Title>
       </Header>
-      {loading ? (
+      {isLoading ? (
         <Loader>
           <img src={loadingGif} alt="loading" />
         </Loader>
       ) : (
         <CoinList>
-          {coins.map((coin) => (
+          {data?.slice(0, 20).map((coin) => (
             <Coin key={coin.id}>
               <Link
                 to={{

@@ -1,9 +1,18 @@
-import { Switch, Route, useLocation, useParams } from "react-router-dom";
+import {
+  Switch,
+  Route,
+  useLocation,
+  useRouteMatch,
+  useParams,
+  Link,
+} from "react-router-dom";
 import styled from "styled-components";
 import loadingGif from "../img/loading.gif";
 import { useEffect, useState } from "react";
 import Price from "./Price";
 import Chart from "./Chart";
+import { useQuery } from "react-query";
+import { fetchInfo, fetchTickers } from "../api";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -59,6 +68,31 @@ const Img = styled.img`
   width: 40px;
   height: 40px;
   margin-right: 10px;
+`;
+const Tabs = styled.div`
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.0784313725);
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 25px 0;
+  background-color: #353b48;
+`;
+const Tab = styled.span<{ isActive: Boolean }>`
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 20px 0px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: ${(props) => (props.isActive ? "#e1b12c" : props.theme.bgColor)};
+
+  a {
+    display: block;
+  }
+  &:hover {
+    color: #e1b12c;
+  }
 `;
 
 interface RouteState {
@@ -160,45 +194,46 @@ interface KrwData {
   changeRate: number;
 }
 function Coin() {
-  const [loading, setLoading] = useState(true);
-  const [info, setInfo] = useState<InfoData>();
-  const [price, setPrice] = useState<PriceData>();
-  const [krw, setKrw] = useState<KrwData>();
-  const [rate, setRate] = useState(Number);
+  const [krw, setKrw] = useState(Number);
   const { id } = useParams<RouteParams>();
   const { state } = useLocation<RouteState>();
-  useEffect(() => {
-    (async () => {
-      const infoResponse = await (
-        await fetch(`https://api.coinpaprika.com/v1/coins/${id}`)
-      ).json();
-      const priceResponse = await (
-        await fetch(`https://api.coinpaprika.com/v1/tickers/${id}`)
-      ).json();
-      const krwResponse = await (
-        await fetch(
-          "https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRWUSD"
-        )
-      ).json();
-      const basePrice = await priceResponse.quotes.USD.price;
-      const krwPrice = await krwResponse[0].basePrice;
+  const priceMatch = useRouteMatch("/:id/price");
+  const chartMatch = useRouteMatch("/:id/chart");
 
-      setRate(basePrice * krwPrice);
-      setKrw(krwResponse[0]);
-      setInfo(infoResponse);
-      setPrice(priceResponse);
-      setLoading(false);
-    })();
-  }, [id]);
+  const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
+    ["info", id],
+    () => fetchInfo(id)
+  );
+  const { isLoading: tickerLoading, data: tickerData } = useQuery<PriceData>(
+    ["tickers", id],
+    () => fetchTickers(id)
+  );
+
+  // 달러->원화 가격 API 및 코인가격 원화로 계산
+  (async () => {
+    const response = await (
+      await fetch(
+        "https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRWUSD"
+      )
+    ).json();
+    const krwPrice = await response[0].basePrice;
+    if (tickerData) {
+      const basePrice = tickerData?.quotes.USD.price;
+      setKrw(krwPrice * basePrice);
+    }
+  })();
+
+  const loading = infoLoading || tickerLoading;
+
   return (
     <Container>
       <Header>
         <Title>
           <Img
-            src={`https://coinicons-api.vercel.app/api/icon/${info?.symbol.toLowerCase()}`}
+            src={`https://coinicons-api.vercel.app/api/icon/${infoData?.symbol.toLowerCase()}`}
             alt="symbol"
           />
-          {state?.name ? state.name : loading ? "Loading" : info?.name}
+          {state?.name ? state.name : loading ? "Loading" : infoData?.name}
         </Title>
       </Header>
       {loading ? (
@@ -211,14 +246,16 @@ function Coin() {
             <InfoContainer>
               <InfoDetails>
                 <span>RANK</span>
-                <span>{info?.rank}</span>
+                <span>{infoData?.rank}</span>
               </InfoDetails>
               <InfoDetails>
-                <span id="Accent">{price?.quotes.USD.percent_change_12h}</span>
+                <span id="Accent">
+                  {tickerData?.quotes.USD.percent_change_12h}
+                </span>
               </InfoDetails>
               <InfoDetails>
                 <span>
-                  {rate
+                  {krw
                     .toFixed(0)
                     .toString()
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
@@ -227,9 +264,17 @@ function Coin() {
               </InfoDetails>
             </InfoContainer>
             <InfoContainer>
-              <span id="description">{info?.description}</span>
+              <span id="description">{infoData?.description}</span>
             </InfoContainer>
           </DesContainer>
+          <Tabs>
+            <Tab isActive={priceMatch !== null}>
+              <Link to={`/${id}/price`}>가격</Link>
+            </Tab>
+            <Tab isActive={chartMatch !== null}>
+              <Link to={`/${id}/chart`}>차트</Link>
+            </Tab>
+          </Tabs>
           <Switch>
             <Route path={`/${id}/price`}>
               <Price />
