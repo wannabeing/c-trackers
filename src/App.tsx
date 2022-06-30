@@ -8,6 +8,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { themeAtom } from "./atoms";
 import darkMode from "./img/darkMode.png";
 import lightMode from "./img/lightMode.png";
+import homePng from "./img/home.png";
 
 const Reset = createGlobalStyle`
   html, body, div, span, applet, object, iframe,
@@ -69,8 +70,12 @@ const Reset = createGlobalStyle`
  
 `;
 const ThemeBtn = styled.button`
+  position: relative;
+  top: 50%;
+  left: 79%;
   width: 50px;
   height: 50px;
+  margin: 20px 5px;
   border-radius: 50px;
   border: 1px solid ${(props) => props.theme.textColor};
   background-color: white;
@@ -94,6 +99,11 @@ function App() {
         <Reset />
         <ThemeBtn onClick={toggleTheme}>
           <img src={theme ? lightMode : darkMode} alt="themeImg" />
+        </ThemeBtn>
+        <ThemeBtn>
+          <a href="/">
+            <img src={homePng} alt="home" />
+          </a>
         </ThemeBtn>
         <Router />
         <ReactQueryDevtools />
