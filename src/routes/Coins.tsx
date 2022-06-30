@@ -24,19 +24,30 @@ const Loader = styled.div`
   margin-top: 30vh;
 `;
 const Title = styled.h1`
-  color: ${(props) => props.theme.accentColor};
-  font-size: 48px;
+  color: #e55643;
+  font-size: 64px;
   font-weight: 800;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 47px;
+  letter-spacing: 2px;
+  transform: skew(-10deg);
+  text-shadow: #533d4a 1px 1px, #533d4a 2px 2px, #533d4a 3px 3px,
+    #533d4a 4px 4px, #533d4a 5px 5px, #533d4a 6px 6px;
+  min-width: 10px;
+  min-height: 10px;
 `;
+
 const CoinList = styled.ul``;
 const Coin = styled.li`
-  background-color: white;
+  background-color: ${(props) => props.theme.bgColor};
   color: ${(props) => props.theme.textColor};
   margin-bottom: 10px;
   padding: 20px;
   box-shadow: 0 0 16px rgba(0, 0, 0, 0.0784313725);
   border-radius: 12px;
   font-weight: 600;
+  border: 1px solid ${(props) => props.theme.textColor};
   &:hover {
     color: ${(props) => props.theme.accentColor};
     cursor: pointer;
@@ -64,6 +75,7 @@ interface Icoins {
   is_active: boolean;
   type: string;
 }
+
 function Coins() {
   const { isLoading, data } = useQuery<Icoins[]>("coins", fetchCoins);
 

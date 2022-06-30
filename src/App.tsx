@@ -1,7 +1,13 @@
 import Router from "./Router";
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import "./App.css";
 import { ReactQueryDevtools } from "react-query/devtools";
+import { ThemeProvider } from "styled-components";
+import { lightTheme, darkTheme } from "./theme";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { themeAtom } from "./atoms";
+import darkMode from "./img/darkMode.png";
+import lightMode from "./img/lightMode.png";
 
 const Reset = createGlobalStyle`
   html, body, div, span, applet, object, iframe,
@@ -38,8 +44,8 @@ const Reset = createGlobalStyle`
   }
   body {
     line-height: 1;
-    background-color: ${(props) => props.theme.bgColor};
-    color: ${(props) => props.theme.textColor}
+    background-color:${(props) => props.theme.bgColor};
+    color: ${(props) => props.theme.textColor};
   }
   menu, ol, ul {
     list-style: none;
@@ -62,13 +68,36 @@ const Reset = createGlobalStyle`
   }
  
 `;
+const ThemeBtn = styled.button`
+  width: 50px;
+  height: 50px;
+  border-radius: 50px;
+  border: 1px solid ${(props) => props.theme.textColor};
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.1s linear;
+  &:hover {
+    transform: scale(1.1, 1.1);
+  }
+  img {
+    width: 70%;
+  }
+`;
 
 function App() {
+  const theme = useRecoilValue(themeAtom);
+  const setTheme = useSetRecoilState(themeAtom);
+  const toggleTheme = () => setTheme((val) => !val);
   return (
     <>
-      <Reset />
-      <Router />
-      <ReactQueryDevtools />
+      <ThemeProvider theme={theme ? lightTheme : darkTheme}>
+        <Reset />
+        <ThemeBtn onClick={toggleTheme}>
+          <img src={theme ? lightMode : darkMode} alt="themeImg" />
+        </ThemeBtn>
+        <Router />
+        <ReactQueryDevtools />
+      </ThemeProvider>
     </>
   );
 }

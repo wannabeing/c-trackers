@@ -3,6 +3,8 @@ import loadingGif from "../img/loading.gif";
 import styled from "styled-components";
 import { useQuery } from "react-query";
 import { fetchChart } from "../api";
+import { useRecoilValue } from "recoil";
+import { themeAtom } from "../atoms";
 
 const Loader = styled.div`
   display: flex;
@@ -26,6 +28,9 @@ interface IChartData {
 }
 
 function Chart({ id, won }: ChartProps) {
+  const theme = useRecoilValue(themeAtom);
+  console.log(theme);
+
   const { isLoading: chartLoading, data: chartData } = useQuery<IChartData[]>(
     ["chart", id],
     () => fetchChart(id)
@@ -75,6 +80,7 @@ function Chart({ id, won }: ChartProps) {
               },
             },
             theme: {
+              mode: theme ? "light" : "dark",
               palette: "palette10",
             },
             colors: ["#7D02EB", "#5653FE", "#00B1F2", "#A300D6", "#7D02EB"],

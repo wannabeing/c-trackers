@@ -32,14 +32,24 @@ const Loader = styled.div`
   margin-top: 30vh;
 `;
 const Title = styled.h1`
-  color: ${(props) => props.theme.accentColor};
-  font-size: 48px;
+  color: ${(props) => props.theme.bgColor};
+  font-size: 64px;
   font-weight: 800;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 47px;
+  letter-spacing: 2px;
+  transform: skew(-10deg);
+  text-shadow: #533d4a 1px 1px, #533d4a 2px 2px, #533d4a 3px 3px,
+    #533d4a 4px 4px, #533d4a 5px 5px, #533d4a 6px 6px;
+  min-width: 10px;
+  min-height: 10px;
 `;
 const DesContainer = styled.div`
   box-shadow: 0 0 16px rgba(0, 0, 0, 0.0784313725);
   margin-top: 20px;
   border-radius: 12px;
+  border: 1px solid ${(props) => props.theme.textColor};
   width: 100%;
   padding: 20px;
 `;
@@ -49,12 +59,12 @@ const InfoContainer = styled.div`
   align-items: center;
   #description {
     margin-top: 15px;
-    color: ${(props) => props.theme.accentColor};
+    color: ${(props) => props.theme.textColor};
     font-size: 16px;
   }
 `;
 const InfoDetails = styled.div`
-  color: ${(props) => props.theme.accentColor};
+  color: ${(props) => props.theme.textColor};
   span {
     font-size: 16px;
     font-weight: 600;
@@ -65,8 +75,8 @@ const InfoDetails = styled.div`
   }
 `;
 const Img = styled.img`
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   margin-right: 10px;
 `;
 const Tabs = styled.div`
@@ -75,7 +85,7 @@ const Tabs = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   margin: 25px 0;
-  background-color: #353b48;
+  background-color: ${(props) => props.theme.textColor};
 `;
 const Tab = styled.span<{ isActive: Boolean }>`
   text-align: center;
@@ -85,6 +95,7 @@ const Tab = styled.span<{ isActive: Boolean }>`
   padding: 20px 0px;
   border-radius: 6px;
   cursor: pointer;
+  background-color: ${(props) => props.theme.textColor};
   color: ${(props) => (props.isActive ? "#e1b12c" : props.theme.bgColor)};
 
   a {

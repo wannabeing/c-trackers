@@ -49,9 +49,10 @@ const PriceContainer = styled.div`
   margin-top: 20px;
   border-radius: 12px;
   padding: 20px;
-  color: ${(props) => props.theme.accentColor};
+  color: ${(props) => props.theme.textColor};
   font-size: 18px;
   font-weight: 600;
+  border: 1px solid ${(props) => props.theme.textColor}; ;
 `;
 const PriceDetails = styled.div`
   display: flex;
@@ -78,27 +79,27 @@ function Price({ id, won }: IProps) {
         <span>15분 전</span>
         <span id="accent">{data?.quotes.USD.percent_change_15m}%</span>
       </PriceDetails>
-      <hr />
+      <br />
       <PriceDetails>
         <span>1시간 전</span>
         <span id="accent">{data?.quotes.USD.percent_change_1h}%</span>
       </PriceDetails>
-      <hr />
+      <br />
       <PriceDetails>
         <span>24시간 전</span>
         <span id="accent">{data?.quotes.USD.percent_change_24h}%</span>
       </PriceDetails>
-      <hr />
+      <br />
       <PriceDetails>
         <span>30일 전</span>
         <span id="accent">{data?.quotes.USD.percent_change_30d}%</span>
       </PriceDetails>
-      <hr />
+      <br />
       <PriceDetails>
         <span>1년 전</span>
         <span id="accent">{data?.quotes.USD.percent_change_1y}%</span>
       </PriceDetails>
-      <hr />
+      <br />
       <PriceDetails>
         <span>ATH</span>
         <span id="accent">
