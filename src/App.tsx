@@ -101,7 +101,7 @@ function App() {
           <img src={theme ? lightMode : darkMode} alt="themeImg" />
         </ThemeBtn>
         <ThemeBtn>
-          <a href="/c-trackers/">
+          <a href="/c-trackers">
             <img src={homePng} alt="home" />
           </a>
         </ThemeBtn>
