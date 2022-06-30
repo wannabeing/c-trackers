@@ -1,19 +1,19 @@
-import { HashRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Coins from "./routes/Coins";
 import Coin from "./routes/Coin";
 
 function Router() {
   return (
-    <HashRouter>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
       <Switch>
         <Route path="/:id">
           <Coin />
         </Route>
-        <Route path={process.env.PUBLIC_URL + "/"}>
+        <Route path="/">
           <Coins />
         </Route>
       </Switch>
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 export default Router;
