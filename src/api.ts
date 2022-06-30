@@ -15,11 +15,19 @@ export async function fetchTickers(id: string) {
   const response = await (await fetch(`${BASE_URL}/tickers/${id}`)).json();
   return response;
 }
-// export async function fetchKrw() {
-//   const response = await (
-//     await fetch(
-//       "https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRWUSD"
-//     )
-//   ).json();
-//   return response;
-// }
+// Chart.tsx
+export async function fetchChart(id: string) {
+  const response = await (
+    await fetch(`https://ohlcv-api.nomadcoders.workers.dev/?coinId=${id}`)
+  ).json();
+  return response;
+}
+
+export async function fetchKrw() {
+  const response = await (
+    await fetch(
+      "https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRWUSD"
+    )
+  ).json();
+  return response[0].basePrice;
+}

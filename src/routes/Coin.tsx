@@ -8,11 +8,11 @@ import {
 } from "react-router-dom";
 import styled from "styled-components";
 import loadingGif from "../img/loading.gif";
-import { useEffect, useState } from "react";
 import Price from "./Price";
 import Chart from "./Chart";
 import { useQuery } from "react-query";
-import { fetchInfo, fetchTickers } from "../api";
+import { fetchInfo, fetchKrw, fetchTickers } from "../api";
+import { Helmet } from "react-helmet";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -60,7 +60,7 @@ const InfoDetails = styled.div`
     font-weight: 600;
   }
   #Accent {
-    color: ${(props) => props.theme.textColor};
+    color: #c23616;
     font-weight: 800;
   }
 `;
@@ -93,6 +93,12 @@ const Tab = styled.span<{ isActive: Boolean }>`
   &:hover {
     color: #e1b12c;
   }
+`;
+const Home = styled.div`
+  display: flex;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
 `;
 
 interface RouteState {
@@ -156,45 +162,7 @@ interface PriceData {
     };
   };
 }
-interface KrwData {
-  code: string;
-  currencyCode: string;
-  currencyName: string;
-  country: string;
-  name: string;
-  date: string;
-  time: string;
-  recurrenceCount: number;
-  basePrice: number;
-  openingPrice: number;
-  highPrice: number;
-  lowPrice: number;
-  change: string;
-  changePrice: number;
-  cashBuyingPrice: number;
-  cashSellingPrice: number;
-  ttBuyingPrice: number;
-  ttSellingPrice: number;
-  tcBuyingPrice: null;
-  fcSellingPrice: null;
-  exchangeCommission: number;
-  usDollarRate: number;
-  high52wPrice: number;
-  high52wDate: string;
-  low52wPrice: number;
-  low52wDate: string;
-  currencyUnit: number;
-  provider: string;
-  timestamp: number;
-  id: number;
-  createdAt: string;
-  modifiedAt: string;
-  signedChangePrice: number;
-  signedChangeRate: number;
-  changeRate: number;
-}
 function Coin() {
-  const [krw, setKrw] = useState(Number);
   const { id } = useParams<RouteParams>();
   const { state } = useLocation<RouteState>();
   const priceMatch = useRouteMatch("/:id/price");
@@ -202,7 +170,10 @@ function Coin() {
 
   const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
     ["info", id],
-    () => fetchInfo(id)
+    () => fetchInfo(id),
+    {
+      refetchInterval: 900000,
+    }
   );
   const { isLoading: tickerLoading, data: tickerData } = useQuery<PriceData>(
     ["tickers", id],
@@ -210,23 +181,20 @@ function Coin() {
   );
 
   // 달러->원화 가격 API 및 코인가격 원화로 계산
-  (async () => {
-    const response = await (
-      await fetch(
-        "https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRWUSD"
-      )
-    ).json();
-    const krwPrice = await response[0].basePrice;
-    if (tickerData) {
-      const basePrice = tickerData?.quotes.USD.price;
-      setKrw(krwPrice * basePrice);
-    }
-  })();
+  const { isLoading: krwLoading, data: krwData } = useQuery<number>(
+    ["krw", id],
+    () => fetchKrw()
+  );
 
   const loading = infoLoading || tickerLoading;
 
   return (
     <Container>
+      <Helmet>
+        <title>
+          {state?.name ? state.name : loading ? "Loading" : infoData?.name}
+        </title>
+      </Helmet>
       <Header>
         <Title>
           <Img
@@ -242,6 +210,9 @@ function Coin() {
         </Loader>
       ) : (
         <>
+          <Home>
+            <Link to="/">&larr;</Link>
+          </Home>
           <DesContainer>
             <InfoContainer>
               <InfoDetails>
@@ -255,8 +226,10 @@ function Coin() {
               </InfoDetails>
               <InfoDetails>
                 <span>
-                  {krw
-                    .toFixed(0)
+                  {Math.imul(
+                    krwData?.toFixed(0) as unknown as number,
+                    tickerData?.quotes.USD.price.toFixed(3) as unknown as number
+                  )
                     .toString()
                     .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",")}
                   원
@@ -269,7 +242,7 @@ function Coin() {
           </DesContainer>
           <Tabs>
             <Tab isActive={priceMatch !== null}>
-              <Link to={`/${id}/price`}>가격</Link>
+              <Link to={`/${id}/price`}>변동률</Link>
             </Tab>
             <Tab isActive={chartMatch !== null}>
               <Link to={`/${id}/chart`}>차트</Link>
@@ -277,10 +250,10 @@ function Coin() {
           </Tabs>
           <Switch>
             <Route path={`/${id}/price`}>
-              <Price />
+              <Price id={id} won={krwData ? krwData : 1000} />
             </Route>
             <Route path={`/${id}/chart`}>
-              <Chart />
+              <Chart id={id} won={krwData ? krwData : 1000} />
             </Route>
           </Switch>
         </>

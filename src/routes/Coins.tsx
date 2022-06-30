@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
 import loadingGif from "../img/loading.gif";
 import { useQuery } from "react-query";
 import { fetchCoins } from "../api";
+import { Helmet } from "react-helmet";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -15,6 +15,7 @@ const Header = styled.header`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 40px 0;
 `;
 const Loader = styled.div`
   display: flex;
@@ -68,6 +69,9 @@ function Coins() {
 
   return (
     <Container>
+      <Helmet>
+        <title>C-Trackers</title>
+      </Helmet>
       <Header>
         <Title>C-Trackers</Title>
       </Header>
